@@ -5,7 +5,7 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq-by-zahin
     ports:
-      - "5672:5672"
+      - "5675:5672"
       - "15675:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
@@ -24,8 +24,6 @@ services:
       - JWT_ACCESS_SECRET=yourAccessSecretHere
       - JWT_REFRESH_SECRET=yourRefreshSecretHere
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-      - JWT_ACCESS_SECRET=yourAccessSecretHere
-      - JWT_REFRESH_SECRET=yourRefreshSecretHere
     depends_on:
       - rabbitmq
     restart: on-failure:3

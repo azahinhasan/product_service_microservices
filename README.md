@@ -27,7 +27,7 @@ Docker will handle all dependencies, including PostgreSQL and Node.js, making se
 - The <b>Auth service</b> will be accessible at `http://localhost:5015/api/v1`.
 - The <b>Product service</b> will be accessible at `http://localhost:5016/api/v1`.
 - The RabbitMQ will be accessible at `http://localhost:5672`.
-
+- The RabbitMQ management UI will be accessible at (guest:guest) `http://localhost:15675`.
 
 ### Option 2: Run without Docker
 Ensure the following are installed:
