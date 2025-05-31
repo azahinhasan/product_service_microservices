@@ -136,7 +136,7 @@ Note: All endpoints require authorization via a valid JWT `authorization: Bearer
 ### 2. **Get All Products**  
 **Method**: `GET`  
 **Auth**: ✅ Authorization required  
-**Endpoint**: `/products`
+**Endpoint**: `/products?limit=5&page=2`
 
 ### 3. **Get Product by ID**  
 **Method**: `GET`  

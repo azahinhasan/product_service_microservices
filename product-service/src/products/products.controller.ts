@@ -7,11 +7,13 @@ import {
   Delete,
   Put,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { AuthGuard } from 'src/guard/jwt-auth.guard';
+import { AuthGuard } from '../guard/jwt-auth.guard';
 import { CreateProductDto, UpdateProductDto } from './products.dto';
-import { GetIssuer } from 'src/decorators/get-issuer.decorator';
+import { GetIssuer } from '../decorators/get-issuer.decorator';
+import { PaginationDto } from '../common/pagination.dto';
 
 @Controller('products')
 @UseGuards(AuthGuard)
@@ -24,13 +26,13 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query() pagination: PaginationDto) {
+    return this.productsService.findAll(pagination);
   }
 
   @Get(':id')
   findOne(@Param('id') id, @GetIssuer() issuer: any) {
-    return this.productsService.findOne(id,issuer.user.id);
+    return this.productsService.findOne(id, issuer.user.id);
   }
 
   @Put(':id')

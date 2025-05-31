@@ -9,6 +9,7 @@ import { Model } from 'mongoose';
 import { Product, ProductDocument } from './product.schema';
 import { CreateProductDto, UpdateProductDto } from './products.dto';
 import { LoggingsService } from '../logging/logging.service';
+import { PaginationDto } from 'src/common/pagination.dto';
 
 @Injectable()
 export class ProductsService {
@@ -42,10 +43,27 @@ export class ProductsService {
     }
   }
 
-  async findAll() {
+  async findAll(pagination: PaginationDto) {
     try {
-      const products = await this.productModel.find();
-      return products;
+      const page = pagination.page && pagination.page > 0 ? pagination.page : 1;
+      const limit =
+        pagination.limit && pagination.limit > 0 ? pagination.limit : 10;
+      const skip = (page - 1) * limit;
+
+      const products = await this.productModel
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .exec();
+
+      const total = await this.productModel.countDocuments();
+      return {
+        data: products,
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      };
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException('Failed to fetch products');
