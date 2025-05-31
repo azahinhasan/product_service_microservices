@@ -1,6 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto,VerifyTokenDto,RefreshDto ,SigninDto,SignoutDto} from './auth.dto';
+import { MessagePattern } from '@nestjs/microservices';
 
 
 @Controller('auth')
@@ -27,8 +28,8 @@ export class AuthController {
     return this.authService.refresh(body);
   }
 
-  @Post('verify-token')
-  verifyToken(@Body() body: VerifyTokenDto) {
-    return this.authService.verifyToken(body);
+  @MessagePattern('auth.token.validate')
+  verifyToken(@Body() token:string) {
+    return this.authService.verifyToken(token);
   }
 }
