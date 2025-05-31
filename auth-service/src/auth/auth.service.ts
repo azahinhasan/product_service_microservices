@@ -139,10 +139,12 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(dto.token, {
         secret: this.accessSecret,
       });
-
+      const stored = await this.tokensService.findByUserId(payload.id);
+      if (!stored) {
+        throw new UnauthorizedException('Invalid or expired token');
+      }
       return { valid: true, payload };
-    } catch (error) {
-      console.log(error);
+    } catch {
       throw new UnauthorizedException('Invalid or expired token');
     }
   }

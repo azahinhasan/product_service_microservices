@@ -24,9 +24,9 @@ docker compose up --build
 ```
 Docker will handle all dependencies, including PostgreSQL and Node.js, making setup simpler.
 
-- The auth service will be accessible at `http://localhost:5015/api/v1`.
-- The product service will be accessible at `http://localhost:5016/api/v1`.
-- The rabbitmq will be accessible at `http://localhost:5672`.
+- The <b>Auth service</b> will be accessible at `http://localhost:5015/api/v1`.
+- The <b>Product service</b> will be accessible at `http://localhost:5016/api/v1`.
+- The RabbitMQ will be accessible at `http://localhost:5672`.
 
 
 ### Option 2: Run without Docker
@@ -129,8 +129,7 @@ Note: All endpoints require authorization via a valid JWT `authorization: Bearer
 {
   "name": "Product A",
   "description": "Description for Product A",
-  "price": 99.99,
-  "createdBy": "userId123"
+  "price": 99.99
 }
 ```
 
@@ -147,7 +146,7 @@ Note: All endpoints require authorization via a valid JWT `authorization: Bearer
 ### 4. **Update Product**  
 **Method**: `PUT`  
 **Auth**: ✅ Authorization required
-**Endpoint**: `/products`
+**Endpoint**: `/products/:id`
 
 #### Request Body:
 ```json
