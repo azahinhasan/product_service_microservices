@@ -43,11 +43,11 @@ export class AuthService {
         password: hashed,
       });
 
-      this.client.emit('user.created', {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-      });
+      // this.client.emit('user.created', {
+      //   id: user._id,
+      //   email: user.email,
+      //   name: user.name,
+      // });
 
       return {
         status: 200,

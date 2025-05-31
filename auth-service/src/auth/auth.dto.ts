@@ -4,7 +4,7 @@ export class SignupDto {
   @IsNotEmpty()
   name: string;
 
-  @IsEmail()
+  @IsEmail({}, { message: 'Invalid email' })
   email: string;
 
   @MinLength(6)
