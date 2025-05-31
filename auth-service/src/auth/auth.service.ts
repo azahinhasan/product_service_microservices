@@ -76,7 +76,7 @@ export class AuthService {
         { secret: this.accessSecret, expiresIn: '15m' },
       );
       const refreshToken = this.jwtService.sign(
-        { id: user._id },
+        { id: user._id, role: user.role },
         { secret: this.refreshSecret, expiresIn: '7d' },
       );
 
@@ -95,33 +95,36 @@ export class AuthService {
     }
   }
 
-  async signout(dto: SignoutDto) {
+  async signout(userId: string) {
     try {
-      return await this.tokensService.delete(dto.userId);
+      await this.tokensService.delete(userId);
+      return {
+        status: 200,
+        message: 'User signout successful',
+      };
     } catch (error) {
       console.log(error);
       throw new InternalServerErrorException('Failed to sign out');
     }
   }
 
-  async refresh(dto: RefreshDto) {
+  async refresh(refreshToken: string, user: any) {
     try {
-      const stored = await this.tokensService.find(
-        dto.userId,
-        dto.refreshToken,
-      );
+      if (!refreshToken) {
+        throw new UnauthorizedException('Refresh token required');
+      }
+      const stored = await this.tokensService.find(user.id, refreshToken);
+
       if (!stored) {
         throw new UnauthorizedException('Invalid refresh token');
       }
-      const refreshSecret =
-        this.configService.get<string>('JWT_REFRESH_SECRET');
 
-      await this.jwtService.verifyAsync(dto.refreshToken, {
-        secret: refreshSecret,
+      await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.refreshSecret,
       });
 
       const accessToken = this.jwtService.sign(
-        { id: dto.userId },
+        { id: user.id, role: user.role },
         { secret: this.accessSecret, expiresIn: '15m' },
       );
 

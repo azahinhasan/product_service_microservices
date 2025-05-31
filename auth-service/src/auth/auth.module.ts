@@ -18,7 +18,7 @@ import { ConfigModule } from '@nestjs/config';
       { name: User.name, schema: UserSchema },
       { name: Token.name, schema: TokenSchema },
     ]),
-    UserClientModule,
+    UserClientModule
   ],
   controllers: [AuthController],
   providers: [AuthService, UsersService, TokensService],

@@ -100,51 +100,20 @@ Ensure the following are installed:
 > Return the refresh token and access token.
 
 ### 3. **Signout (Logout User)**  
-**Method**: `POST`  
+**Method**: `GET`  
 **Auth**: ✅ Authorization required  
-**Endpoint**: `/auth/signout`
-
-#### Request Body:
-
-```json
-{
-  "userId": "66480fa42a0485273ebd4fc7"
-}
-```
+**Endpoint**: `/auth/signout`<br/>
+**Headers**: x-refresh-token : refresh_token (required)
 
 > Deletes the stored refresh token associated with the user.
 
 ### 4. **Refresh Access Token**  
-**Method**: `POST`  
+**Method**: `GET`  
 **Auth**: ❌ Authorization not required  
-**Endpoint**: `/auth/refresh`
-
-#### Request Body:
-
-```json
-{
-  "userId": "66480fa42a0485273ebd4fc7",
-  "refreshToken": "JWT_REFRESH_TOKEN"
-}
-```
+**Endpoint**: `/auth/refresh` <br/>
+**Headers**: x-refresh-token : refresh_token (required)
 
 > Validates stored refresh token and issues a new access token.
-
-### 5. **Verify Token**  
-**Method**: `POST`  
-**Auth**: ❌ Authorization not required  
-**Endpoint**: `/auth/verify-token`
-
-#### Request Body:
-
-```json
-{
-  "token": "JWT_ACCESS_TOKEN"
-}
-```
-
-> Returns the decoded payload if token is valid and not expired.
-
 
 ## Product Service API
 

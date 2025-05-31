@@ -1,8 +1,22 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Headers,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignupDto,VerifyTokenDto,RefreshDto ,SigninDto,SignoutDto} from './auth.dto';
+import {
+  SignupDto,
+  VerifyTokenDto,
+  RefreshDto,
+  SigninDto,
+  SignoutDto,
+} from './auth.dto';
 import { MessagePattern } from '@nestjs/microservices';
-
+import { RefreshTokenGuard } from 'src/guard/jwt-refresh-token.guard';
+import { GetIssuer } from 'src/decorators/get-issuer.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -18,18 +32,23 @@ export class AuthController {
     return this.authService.signin(body);
   }
 
-  @Post('signout')
-  signout(@Body() body: SignoutDto) {
-    return this.authService.signout(body);
+  @UseGuards(RefreshTokenGuard)
+  @Get('signout')
+  signout(@GetIssuer() issuer: any) {
+    return this.authService.signout(issuer.user.id);
   }
 
-  @Post('refresh')
-  refresh(@Body() body: RefreshDto) {
-    return this.authService.refresh(body);
+  @UseGuards(RefreshTokenGuard)
+  @Get('refresh')
+  refresh(
+    @GetIssuer() issuer: any,
+    @Headers('x-refresh-token') refreshTokenHeader: string,
+  ) {
+    return this.authService.refresh(refreshTokenHeader, issuer.user);
   }
 
   @MessagePattern('auth.token.validate')
-  verifyToken(@Body() dto:VerifyTokenDto) {
+  verifyToken(@Body() dto: VerifyTokenDto) {
     return this.authService.verifyToken(dto);
   }
 }

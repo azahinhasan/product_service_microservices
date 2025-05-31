@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Token, TokenDocument } from './token.schema';
 
 @Injectable()
@@ -13,10 +13,10 @@ export class TokensService {
   }
 
   async find(userId: string, token: string) {
-    return this.tokenModel.findOne({ user: userId, refreshToken:token });
+    return this.tokenModel.findOne({ user: new Types.ObjectId(userId), refreshToken:token });
   }
 
   async delete(userId: string) {
-    return this.tokenModel.deleteOne({ user: userId });
+    return this.tokenModel.deleteOne({ user: new Types.ObjectId(userId) });
   }
 }
