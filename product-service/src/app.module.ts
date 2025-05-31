@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductsModule } from './products/products.module';
-
+import { LoggingModule } from './logging/logging.module';
 
 @Module({
   imports: [
@@ -12,8 +12,11 @@ import { ProductsModule } from './products/products.module';
       isGlobal: true,
       envFilePath: 'configs/.env.development',
     }),
-    MongooseModule.forRoot(process.env.MONGO_URI),
-    ProductsModule
+    MongooseModule.forRoot(process.env.MONGO_URI, {
+      bufferCommands: false,
+    }),
+    ProductsModule,
+    LoggingModule,
   ],
   // controllers: [AppController],
   providers: [AppService],

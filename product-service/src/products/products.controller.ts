@@ -29,8 +29,8 @@ export class ProductsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id) {
-    return this.productsService.findOne(id);
+  findOne(@Param('id') id, @GetIssuer() issuer: any) {
+    return this.productsService.findOne(id,issuer.user.id);
   }
 
   @Put(':id')

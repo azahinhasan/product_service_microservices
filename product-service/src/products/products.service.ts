@@ -8,40 +8,60 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from './product.schema';
 import { CreateProductDto, UpdateProductDto } from './products.dto';
+import { LoggingsService } from '../logging/logging.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
+    private readonly logsService: LoggingsService,
   ) {}
 
   async create(dto: CreateProductDto) {
     try {
-      return await this.productModel.create({
+      const product = await this.productModel.create({
         ...dto,
         createdBy: dto.createdBy,
       });
+
+      await this.logsService.create(
+        dto.createdBy.toString(),
+        'CREATE_PRODUCT',
+        'SUCCESS',
+      );
+
+      return product;
     } catch (error) {
       console.error(error);
+      await this.logsService.create(
+        dto.createdBy.toString(),
+        'CREATE_PRODUCT',
+        'FAILED',
+      );
       throw new InternalServerErrorException('Failed to create product');
     }
   }
 
   async findAll() {
     try {
-      return await this.productModel.find();
+      const products = await this.productModel.find();
+      return products;
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException('Failed to fetch products');
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId: string) {
     try {
       const product = await this.productModel.findById(id);
       if (!product) throw new NotFoundException('Product not found');
+
+      await this.logsService.create(userId, 'GET_PRODUCT_BY_ID', 'SUCCESS');
+
       return product;
     } catch (error) {
+      await this.logsService.create(userId, 'GET_PRODUCT_BY_ID', 'FAILED');
       if (error instanceof NotFoundException) throw error;
       console.error(error);
       throw new InternalServerErrorException('Failed to fetch product');
@@ -52,17 +72,26 @@ export class ProductsService {
     try {
       const product = await this.productModel.findById(dto.id);
       if (!product) throw new NotFoundException('Product not found');
-      if (product.createdBy.toString() !== userId)
+      if (product.createdBy.toString() !== userId) {
+        await this.logsService.create(userId, 'DELETE_PRODUCT', 'FAILED');
         throw new ForbiddenException('Access denied');
-      return await this.productModel.findByIdAndUpdate(dto.id, dto, {
+      }
+
+      const updated = await this.productModel.findByIdAndUpdate(dto.id, dto, {
         new: true,
       });
+
+      await this.logsService.create(userId, 'UPDATE_PRODUCT', 'SUCCESS');
+
+      return updated;
     } catch (error) {
       if (
         error instanceof NotFoundException ||
         error instanceof ForbiddenException
       )
         throw error;
+
+      await this.logsService.create(userId, 'UPDATE_PRODUCT', 'FAILED');
       console.error(error);
       throw new InternalServerErrorException('Failed to update product');
     }
@@ -72,15 +101,24 @@ export class ProductsService {
     try {
       const product = await this.productModel.findById(id);
       if (!product) throw new NotFoundException('Product not found');
-      if (product.createdBy.toString() !== userId)
+      if (product.createdBy.toString() !== userId) {
+        await this.logsService.create(userId, 'DELETE_PRODUCT', 'FAILED');
         throw new ForbiddenException('Access denied');
-      return await this.productModel.findByIdAndDelete(id);
+      }
+
+      const deleted = await this.productModel.findByIdAndDelete(id);
+
+      await this.logsService.create(userId, 'DELETE_PRODUCT', 'SUCCESS');
+
+      return deleted;
     } catch (error) {
       if (
         error instanceof NotFoundException ||
         error instanceof ForbiddenException
       )
         throw error;
+
+      await this.logsService.create(userId, 'DELETE_PRODUCT', 'FAILED');
       console.error(error);
       throw new InternalServerErrorException('Failed to delete product');
     }
