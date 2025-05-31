@@ -1,4 +1,3 @@
-// ---------------------- src/auth/auth.module.ts ----------------------
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
@@ -9,15 +8,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from '../users/user.schema';
 import { Token, TokenSchema } from '../tokens/token.schema';
 import { UserClientModule } from 'src/modules/auth-client.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: process.env.JWT_REFRESH_SECRET||"datadata",
-      signOptions: { expiresIn: '15m' },
-    }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
+    ConfigModule,
+    JwtModule.register({}),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Token.name, schema: TokenSchema },
+    ]),
     UserClientModule,
   ],
   controllers: [AuthController],

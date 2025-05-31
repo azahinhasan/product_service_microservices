@@ -17,15 +17,22 @@ import {
   SignoutDto,
 } from './auth.dto';
 import { ClientProxy } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+  private readonly accessSecret: string;
+  private readonly refreshSecret: string;
   constructor(
     private usersService: UsersService,
     private tokensService: TokensService,
     private jwtService: JwtService,
     @Inject('USER_SERVICE') private client: ClientProxy,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.accessSecret = this.configService.get<string>('JWT_ACCESS_SECRET');
+    this.refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
+  }
 
   async signup(dto: SignupDto) {
     try {
@@ -66,11 +73,11 @@ export class AuthService {
 
       const accessToken = this.jwtService.sign(
         { id: user._id, role: user.role },
-        { expiresIn: '15m' },
+        { secret: this.accessSecret, expiresIn: '15m' },
       );
       const refreshToken = this.jwtService.sign(
         { id: user._id },
-        { expiresIn: '7d' },
+        { secret: this.refreshSecret, expiresIn: '7d' },
       );
 
       await this.tokensService.store(user._id as string, refreshToken);
@@ -108,21 +115,30 @@ export class AuthService {
       if (!stored) {
         throw new UnauthorizedException('Invalid refresh token');
       }
+      const refreshSecret =
+        this.configService.get<string>('JWT_REFRESH_SECRET');
+
+      await this.jwtService.verifyAsync(dto.refreshToken, {
+        secret: refreshSecret,
+      });
 
       const accessToken = this.jwtService.sign(
         { id: dto.userId },
-        { expiresIn: '15m' },
+        { secret: this.accessSecret, expiresIn: '15m' },
       );
+
       return { accessToken };
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;
       throw new InternalServerErrorException('Failed to refresh token');
     }
   }
-
   async verifyToken(dto: VerifyTokenDto) {
     try {
-      const payload = await this.jwtService.verifyAsync(dto.token);
+      const payload = await this.jwtService.verifyAsync(dto.token, {
+        secret: this.accessSecret,
+      });
+
       return { valid: true, payload };
     } catch (error) {
       console.log(error);

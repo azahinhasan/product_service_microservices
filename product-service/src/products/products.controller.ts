@@ -20,7 +20,7 @@ export class ProductsController {
 
   @Post()
   create(@Body() dto: CreateProductDto, @GetIssuer() issuer: any) {
-    return this.productsService.create({ ...dto, createdBy:issuer.user.id });
+    return this.productsService.create({ ...dto, createdBy: issuer.user.id });
   }
 
   @Get()
@@ -34,8 +34,12 @@ export class ProductsController {
   }
 
   @Put(':id')
-  update( @GetIssuer() issuer: any, @Body() dto: UpdateProductDto,@Param('id') id: string,) {
-    return this.productsService.update({...dto,id}, issuer.user.id);
+  update(
+    @GetIssuer() issuer: any,
+    @Body() dto: UpdateProductDto,
+    @Param('id') id: string,
+  ) {
+    return this.productsService.update({ ...dto, id }, issuer.user.id);
   }
 
   @Delete(':id')
