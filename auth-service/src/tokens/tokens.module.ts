@@ -1,9 +1,12 @@
+// ---------------------- src/tokens/tokens.module.ts ----------------------
 import { Module } from '@nestjs/common';
-import { TokensController } from './tokens.controller';
+import { MongooseModule } from '@nestjs/mongoose';
 import { TokensService } from './tokens.service';
+import { Token, TokenSchema } from './token.schema';
 
 @Module({
-  controllers: [TokensController],
-  providers: [TokensService]
+  imports: [MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }])],
+  providers: [TokensService],
+  exports: [TokensService],
 })
 export class TokensModule {}
