@@ -90,7 +90,6 @@ export class AuthService {
       };
     } catch (error) {
       console.log(error);
-
       if (error instanceof UnauthorizedException) throw error;
       throw new InternalServerErrorException('Failed to sign in');
     }
@@ -101,7 +100,6 @@ export class AuthService {
       return await this.tokensService.delete(dto.userId);
     } catch (error) {
       console.log(error);
-
       throw new InternalServerErrorException('Failed to sign out');
     }
   }
