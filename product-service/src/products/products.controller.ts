@@ -1,17 +1,26 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Request } from 'express';
-import { JwtAuthGuard } from 'src/guard/jwt-auth.guard';
+import { AuthGuard } from 'src/guard/jwt-auth.guard';
 import { CreateProductDto, UpdateProductDto } from './products.dto';
+import { GetIssuer } from 'src/decorators/get-issuer.decorator';
 
 @Controller('products')
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard)
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  create(@Body() dto: CreateProductDto, @Req() req: Request) {
-    return this.productsService.create({...dto,createdBy:'123'});
+  create(@Body() dto: CreateProductDto, @GetIssuer() issuer: any) {
+    return this.productsService.create({ ...dto, createdBy:issuer.user.id });
   }
 
   @Get()
@@ -25,12 +34,12 @@ export class ProductsController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
-    return this.productsService.update(dto,'123');
+  update( @GetIssuer() issuer: any, @Body() dto: UpdateProductDto,@Param('id') id: string,) {
+    return this.productsService.update({...dto,id}, issuer.user.id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req: Request) {
-    return this.productsService.remove(id,'123');
+  remove(@Param('id') id: string, @GetIssuer() issuer: any) {
+    return this.productsService.remove(id, issuer.user.id);
   }
 }

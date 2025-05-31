@@ -4,28 +4,37 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
+import { Reflector } from '@nestjs/core';
+import { firstValueFrom } from 'rxjs';
+import { ClientProxy } from '@nestjs/microservices';
+import { Inject } from '@nestjs/common';
 
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+export class AuthGuard implements CanActivate {
+  constructor(
+    private reflector: Reflector,
+    @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy,
+  ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+
+    const token = request.headers['authorization']?.split(' ')[1];
+    const refreshToken = request.headers['x-refresh-token'];
+
+    if (!token || !refreshToken) {
+      throw new UnauthorizedException();
+    }
+
+    try {
+      const decoded = await firstValueFrom(
+        this.authClient.send('auth.token.validate', { token }),
+      );
+      request.user = decoded.payload
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+
     return true;
-
-    // const req = context.switchToHttp().getRequest<Request>();
-    // const authHeader = req.headers['authorization'];
-    // if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    //   throw new UnauthorizedException('No token provided');
-    // }
-    // const token = authHeader.split(' ')[1];
-    // try {
-    //   const payload = this.jwtService.verify(token);
-    //   req.user = payload;
-    //   return true;
-    // } catch {
-    //   throw new UnauthorizedException('Invalid token');
-    // }
   }
 }

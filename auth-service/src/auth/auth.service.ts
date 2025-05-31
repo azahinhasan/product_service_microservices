@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   InternalServerErrorException,
   ConflictException,
+  Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -15,6 +16,7 @@ import {
   SigninDto,
   SignoutDto,
 } from './auth.dto';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class AuthService {
@@ -22,15 +24,22 @@ export class AuthService {
     private usersService: UsersService,
     private tokensService: TokensService,
     private jwtService: JwtService,
+    @Inject('USER_SERVICE') private client: ClientProxy,
   ) {}
 
   async signup(dto: SignupDto) {
     try {
       const hashed = await bcrypt.hash(dto.password, 10);
-      await this.usersService.create({
+      const user = await this.usersService.create({
         name: dto.name,
         email: dto.email,
         password: hashed,
+      });
+
+      this.client.emit('user.created', {
+        id: user._id,
+        email: user.email,
+        name: user.name,
       });
 
       return {
@@ -56,11 +65,11 @@ export class AuthService {
       }
 
       const accessToken = this.jwtService.sign(
-        { sub: user._id, role: user.role },
+        { id: user._id, role: user.role },
         { expiresIn: '15m' },
       );
       const refreshToken = this.jwtService.sign(
-        { sub: user._id },
+        { id: user._id },
         { expiresIn: '7d' },
       );
 
@@ -101,7 +110,7 @@ export class AuthService {
       }
 
       const accessToken = this.jwtService.sign(
-        { sub: dto.userId },
+        { id: dto.userId },
         { expiresIn: '15m' },
       );
       return { accessToken };
@@ -111,13 +120,12 @@ export class AuthService {
     }
   }
 
-  async verifyToken(token: string) {
-    console.log(token, 'token--------');
-
+  async verifyToken(dto: VerifyTokenDto) {
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.verifyAsync(dto.token);
       return { valid: true, payload };
-    } catch {
+    } catch (error) {
+      console.log(error);
       throw new UnauthorizedException('Invalid or expired token');
     }
   }

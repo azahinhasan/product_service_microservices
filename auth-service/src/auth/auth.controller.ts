@@ -29,7 +29,7 @@ export class AuthController {
   }
 
   @MessagePattern('auth.token.validate')
-  verifyToken(@Body() token:string) {
-    return this.authService.verifyToken(token);
+  verifyToken(@Body() dto:VerifyTokenDto) {
+    return this.authService.verifyToken(dto);
   }
 }
