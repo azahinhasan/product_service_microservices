@@ -73,7 +73,7 @@ export class AuthService {
 
       const accessToken = this.jwtService.sign(
         { id: user._id, role: user.role },
-        { secret: this.accessSecret, expiresIn: '15m' },
+        { secret: this.accessSecret, expiresIn: '30m' },
       );
       const refreshToken = this.jwtService.sign(
         { id: user._id, role: user.role },
@@ -125,7 +125,7 @@ export class AuthService {
 
       const accessToken = this.jwtService.sign(
         { id: user.id, role: user.role },
-        { secret: this.accessSecret, expiresIn: '15m' },
+        { secret: this.accessSecret, expiresIn: '30m' },
       );
 
       return { accessToken };

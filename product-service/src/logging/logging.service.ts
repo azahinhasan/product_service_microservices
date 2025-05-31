@@ -1,6 +1,10 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { Logging, LoggingDocument } from './logging.schema';
 
 @Injectable()
@@ -9,12 +13,19 @@ export class LoggingsService {
     @InjectModel(Logging.name) private loggingModel: Model<LoggingDocument>,
   ) {}
 
-  async create(userId: string, requestType: string, status: string) {
-    return this.loggingModel.create({
+  async create(
+    userId: string,
+    requestType: string,
+    status: string,
+    session?: ClientSession,
+  ) {
+    const doc = new this.loggingModel({
       userId,
       requestType,
       status,
     });
+
+    return session ? doc.save({ session }) : doc.save();
   }
 
   async findAll() {
