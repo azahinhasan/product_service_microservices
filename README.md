@@ -55,6 +55,7 @@ Ensure the following are installed:
       npm run dev
       ```
       This will configure the database and seed it with some dummy data. The backend server will be accessible at `http://localhost:5016`.
+      > Make sure Auth service is running. Otherwise auth varification will be failed.
 4. **Database**
     - Already connected to a MongoDB server; you can replace the connection string by updating it in the `.env.development` file.
 ---

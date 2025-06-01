@@ -10,10 +10,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { AuthGuard } from '../guard/jwt-auth.guard';
+import { AuthGuard } from '../../guard/jwt-auth.guard';
 import { CreateProductDto, UpdateProductDto } from './products.dto';
-import { GetIssuer } from '../decorators/get-issuer.decorator';
-import { PaginationDto } from '../common/pagination.dto';
+import { GetIssuer } from '../../decorators/get-issuer.decorator';
+import { PaginationDto } from '../../common/pagination.dto';
 
 @Controller('products')
 @UseGuards(AuthGuard)

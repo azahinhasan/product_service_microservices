@@ -13,8 +13,8 @@ import {
   SigninDto,
 } from './auth.dto';
 import { MessagePattern } from '@nestjs/microservices';
-import { RefreshTokenGuard } from '../guard/jwt-refresh-token.guard';
-import { GetIssuer } from '../decorators/get-issuer.decorator';
+import { RefreshTokenGuard } from '../../guard/jwt-refresh-token.guard';
+import { GetIssuer } from '../../decorators/get-issuer.decorator';
 
 @Controller('auth')
 export class AuthController {

@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from './product.schema';
 import { CreateProductDto, UpdateProductDto } from './products.dto';
-import { LoggingsService } from '../logging/logging.service';
+import { LoggingsService } from '../../logging/logging.service';
 import { PaginationDto } from 'src/common/pagination.dto';
 
 @Injectable()
